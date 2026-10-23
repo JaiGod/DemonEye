@@ -2,18 +2,67 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>DemonEye</title>
+  <meta name="description" content="A cosmic demon eye that follows your every move — moods, color themes, audio-reactive soundtrack, tilt control and the Comet Hunt gaze game." />
+  <meta name="theme-color" content="#120512" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="DemonEye" />
+  <meta property="og:title" content="DemonEye — the cosmic eye that watches you" />
+  <meta property="og:description" content="Stars, supernovas and gamma waves around a demon eye that tracks your mouse, finger or phone tilt. Play Comet Hunt with your gaze." />
+  <meta property="og:image" content="https://jaineil32624.github.io/DemonEye/docs/screenshots/social.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://jaineil32624.github.io/DemonEye/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="DemonEye — the cosmic eye that watches you" />
+  <meta name="twitter:description" content="A cosmic demon eye that follows you. Moods, themes, audio-reactive music and a gaze mini-game." />
+  <meta name="twitter:image" content="https://jaineil32624.github.io/DemonEye/docs/screenshots/social.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <canvas id="canvas"></canvas>
-  <div class="hud">
+  <canvas id="canvas" aria-label="Animated cosmic demon eye that follows the pointer"></canvas>
+
+  <div class="hud" id="hud">
     <h1>DemonEye</h1>
-    <p>Move the mouse to guide the pupil. Click to awaken sound and cosmic energy.</p>
-    <p class="hint">Space-Ranger soundtrack will try to play on load.</p>
+    <p>Move the mouse or drag a finger to guide the pupil. Tap to send a shockwave &mdash; hold to charge a supernova.</p>
+    <p class="hint" id="hint">Tap anywhere to awaken the Space-Ranger soundtrack.</p>
   </div>
-  <audio id="bgMusic" src="space-ranger-moire-main-version-03-04-10814.mp3" loop preload="auto"></audio>
+
+  <div class="topbar" id="topbar">
+    <button class="tb" id="btnApp" title="Get the app"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg><span>Get app</span></button>
+    <button class="tb icon" id="btnHelp" title="Shortcuts &amp; help (?)" aria-label="Help"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.4c-.7.3-1 .8-1 1.5v.6M12 17h.01"/></svg></button>
+    <button class="tb icon" id="btnFull" title="Fullscreen (F)" aria-label="Fullscreen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  </div>
+
+  <div class="game-hud" id="gameHud" hidden>
+    <div class="gh-score"><small>Score</small><b id="ghScore">0</b></div>
+    <div class="gh-combo" id="ghCombo">x1</div>
+    <div class="gh-lives" id="ghLives"></div>
+    <button class="tb icon" id="ghPause" title="Pause (P)" aria-label="Pause"><svg viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></svg></button>
+  </div>
+
+  <div class="awaken" id="awaken">Tap to awaken</div>
+
+  <nav class="dock" id="dock" aria-label="Controls">
+    <button class="dk" id="btnSound" aria-pressed="false" title="Sound (M)"><svg viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6L8 10H4z"/><path class="on" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="off" d="m16 9.5 5 5m0-5-5 5"/></svg><span id="soundLbl">Sound</span></button>
+    <button class="dk" id="btnMood" title="Mood (1-5)"><svg viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><ellipse cx="12" cy="12" rx="1.6" ry="4"/></svg><span id="moodLbl">Mood</span></button>
+    <button class="dk" id="btnTheme" title="Theme (T)"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.6-.9 1.2-1.8-.5-1-.1-2.2 1.2-2.2H17a4 4 0 0 0 4-4c0-5.5-4-10-9-10z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></svg><span id="themeLbl">Theme</span></button>
+    <button class="dk accent" id="btnGame" title="Comet Hunt (G)"><svg viewBox="0 0 24 24"><circle cx="16" cy="8" r="3.2"/><path d="M13.6 10.4 4 20M11 8.5 5 14.5M15.5 13 9.5 19"/></svg><span class="lg">Comets</span><span class="sm">Game</span></button>
+    <button class="dk" id="btnTilt" aria-pressed="false" title="Tilt control"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2" transform="rotate(-14 12 12)"/><path d="M3 8.5c-.8 2.3-.8 4.7 0 7M21 8.5c.8 2.3.8 4.7 0 7"/></svg><span>Tilt</span></button>
+    <button class="dk" id="btnSnap" title="Save PNG (S)"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Snap</span></button>
+    <button class="dk" id="btnSettings" title="Settings (,)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg><span class="lg">Settings</span><span class="sm">More</span></button>
+  </nav>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div id="overlays"></div>
+
+  <audio id="bgMusic" src="space-ranger-moire-main-version-03-04-10814.mp3" loop preload="none"></audio>
   <script src="script.js"></script>
 </body>
 </html>
